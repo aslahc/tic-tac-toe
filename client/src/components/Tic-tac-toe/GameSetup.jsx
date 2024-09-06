@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import { useState } from "react";
 import Btn from "../Buttons/Btn";
-
+import { useTicTacToe } from "../../hooks/useTicTacToe";
 const GameSetup = ({
   passcode,
   error,
@@ -10,9 +10,13 @@ const GameSetup = ({
   setGridSize,
   createGame,
   joinGame,
+  isWaiting,
+  setIsWaiting,
+
+  // New prop for invalidating the passcode
 }) => {
   const [copySuccess, setCopySuccess] = useState("");
-
+  const { handleCancel } = useTicTacToe();
   // Function to copy passcode to clipboard
   const handleCopy = () => {
     if (passcode) {
@@ -22,49 +26,30 @@ const GameSetup = ({
     }
   };
 
+  const handleCreateGame = () => {
+    createGame();
+    setIsWaiting(true);
+  };
+
+  // New function to handle cancellation
+  const makecancel = () => {
+    handleCancel(); // Call the function to invalidate the passcode
+    setIsWaiting(false);
+  };
+
   return (
-    <div style={{ textAlign: "center", marginBottom: "20px" }}>
-      <Btn onClick={createGame} text="Create Game" />
-      {passcode && (
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <p style={{ marginRight: "10px" }}>Passcode: {passcode}</p>
-          <button
-            onClick={handleCopy}
-            style={{
-              cursor: "pointer",
-              backgroundColor: "transparent",
-              border: "none",
-              fontSize: "16px",
-              color: "blue",
-              marginLeft: "5px",
-            }}
-          >
-            Copy
-          </button>
-          {copySuccess && (
-            <span style={{ marginLeft: "10px", color: "green" }}>
-              {copySuccess}
-            </span>
-          )}
-        </div>
-      )}
+    <div className="text-center mb-5">
+      <Btn onClick={handleCreateGame} text="Create Game" />
       <br />
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {error && <p className="text-red-500">{error}</p>}
       <input
         type="text"
-        className="rounded-full bg-transparent border-2 border-black"
+        className="rounded-full bg-transparent border-2 border-black p-2 m-2"
         placeholder="Enter passcode"
-        style={{ padding: "10px", margin: "10px" }}
         onChange={(e) => setEnteredPasscode(e.target.value)}
       />
       <Btn onClick={joinGame} text="Join Game" />
-      <div style={{ marginTop: "20px" }}>
+      <div className="mt-5">
         <label>Grid Size: </label>
         <input
           type="number"
@@ -74,6 +59,36 @@ const GameSetup = ({
           placeholder="Grid Size"
         />
       </div>
+
+      {isWaiting && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white p-6 rounded-lg shadow-lg">
+            <h2 className="text-xl font-bold mb-4">Waiting for Opponent</h2>
+            <div className="flex flex-col items-center space-y-4">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+              <p>Waiting for an opponent to join...</p>
+              <div className="flex items-center space-x-2">
+                <p>Passcode: {passcode}</p>
+                <button
+                  onClick={handleCopy}
+                  className="text-blue-500 hover:text-blue-700 focus:outline-none"
+                >
+                  Copy
+                </button>
+                {copySuccess && (
+                  <span className="text-green-500">{copySuccess}</span>
+                )}
+              </div>
+            </div>
+            <button
+              onClick={makecancel}
+              className="mt-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

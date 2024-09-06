@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useTicTacToe } from "./hooks/useTicTacToe";
 import GameSetup from "./components/Tic-tac-toe/GameSetup";
 import Cell from "./components/Tic-tac-toe/Cell";
@@ -6,8 +7,6 @@ import GameBoard from "./components/Tic-tac-toe/GameBoard";
 const App = () => {
   const {
     passcode,
-    // setPasscode,
-    // enteredPasscode,
     setEnteredPasscode,
     gridSize,
     setGridSize,
@@ -22,6 +21,7 @@ const App = () => {
     createGame,
     joinGame,
   } = useTicTacToe();
+  const [isWaiting, setIsWaiting] = useState(false);
 
   const renderCell = (x, y) => {
     const cellContent = board[x][y];
@@ -93,8 +93,11 @@ const App = () => {
         <h1 className="text-4xl mb-6 text-center justify-center">
           Tic-Tac-Toe
         </h1>
+
         {!gameStarted ? (
           <GameSetup
+            isWaiting={isWaiting}
+            setIsWaiting={setIsWaiting}
             passcode={passcode}
             error={error}
             setEnteredPasscode={setEnteredPasscode}

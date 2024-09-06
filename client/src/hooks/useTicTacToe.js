@@ -18,25 +18,28 @@ export const useTicTacToe = () => {
   const handleMove = useCallback(
     (x, y) => {
       if (board[x][y] || winLine || currentTurn !== playerSymbol) {
-        console.log("Invalid move: Cell filled, game over, or not your turn");
         return;
       }
-      console.log(`Move made by ${currentTurn} at position: (${x}, ${y})`);
       let pass = passcode || enteredPasscode;
       socket.emit("makeMove", { pass, x, y });
     },
     [board, winLine, currentTurn, playerSymbol, passcode, enteredPasscode]
   );
+  const handleCancel = useCallback(() => {
+    setGameStarted(false);
+    if (passcode) {
+      setPasscode(null); // Reset passcode locally
+      socket.emit("cancelGame", passcode); // Emit cancel event to server
+    }
+  }, [passcode]);
 
   useEffect(() => {
     const handleGameCreated = ({ passcode }) => {
-      console.log("Game Created, passcode:", passcode);
       setPasscode(passcode);
       setPlayerSymbol("X");
     };
 
     const handleGameJoined = ({ gridSize, scores }) => {
-      console.log("Game Joined, gridSize:", gridSize, "scores:", scores);
       setGridSize(gridSize);
       setGameStarted(true);
       setBoard(
@@ -47,7 +50,6 @@ export const useTicTacToe = () => {
     };
 
     const handleStartGame = (game) => {
-      console.log("Game started:", game);
       setBoard(game.board);
       setCurrentTurn(game.currentTurn);
       setGameStarted(true);
@@ -56,26 +58,22 @@ export const useTicTacToe = () => {
     };
 
     const handleUpdateBoard = (game) => {
-      console.log("Board updated:", game);
       setBoard(game.board);
       setCurrentTurn(game.currentTurn);
     };
 
     const handleStartNextRound = ({ board, currentTurn }) => {
-      console.log("Starting next round.");
       setBoard(board);
       setCurrentTurn(currentTurn);
       setWinLine(null);
     };
 
     const handleGameOver = ({ scores, winLine }) => {
-      console.log("Game over, scores:", scores, "winLine:", winLine);
       setScores(scores);
       setWinLine(winLine);
     };
 
     const handleError = (message) => {
-      console.log("Error received:", message);
       setError(message);
     };
 
@@ -104,12 +102,7 @@ export const useTicTacToe = () => {
       return;
     }
     const newPasscode = Math.random().toString(36).substring(7);
-    console.log(
-      "Creating game with grid size:",
-      gridSize,
-      "passcode:",
-      newPasscode
-    );
+
     socket.emit("createGame", { gridSize, passcode: newPasscode });
     setPasscode(newPasscode);
   }, [gridSize]);
@@ -119,7 +112,6 @@ export const useTicTacToe = () => {
       setError("Please enter a valid passcode.");
       return;
     }
-    console.log("Joining game with passcode:", enteredPasscode);
     socket.emit("joinGame", enteredPasscode);
   }, [enteredPasscode]);
 
@@ -140,5 +132,7 @@ export const useTicTacToe = () => {
     handleMove,
     createGame,
     joinGame,
+    handleCancel,
+    setGameStarted,
   };
 };
