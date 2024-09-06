@@ -21,7 +21,7 @@ html, body {
 
 
 .bg-lined-paper {
-  background-image: url('./papper.jpeg'); /* Set the correct path to your image */
+  background-image: url('/papper.jpeg'); 
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;

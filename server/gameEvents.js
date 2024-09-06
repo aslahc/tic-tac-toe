@@ -91,12 +91,21 @@ const gameEvents = (socket, io) => {
   });
 
   socket.on("cancelGame", (passcode) => {
+    console.log("eter");
     console.log("Handling cancellation...");
     const game = games[passcode];
+
     if (game) {
-      delete games[passcode];
+      // Notify all users in the room that the game is being cancelled
       io.in(passcode).emit("gameCancelled", "The game has been cancelled.");
+
+      // Remove all players from the room
       io.in(passcode).socketsLeave(passcode);
+
+      // Delete the game from the server
+      delete games[passcode];
+
+      console.log(`Game with passcode: ${passcode} has been cancelled.`);
     }
   });
 

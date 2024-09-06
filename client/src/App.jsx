@@ -20,7 +20,9 @@ const App = () => {
     handleMove,
     createGame,
     joinGame,
+    setGameStarted,
   } = useTicTacToe();
+
   const [isWaiting, setIsWaiting] = useState(false);
 
   const renderCell = (x, y) => {
@@ -83,7 +85,7 @@ const App = () => {
       />
     );
   };
-
+  console.log(gameStarted, "-------------------------");
   return (
     <div
       className="App"
@@ -113,11 +115,22 @@ const App = () => {
               playerSymbol={playerSymbol}
               scores={scores}
             />
+            <button
+              onClick={() => {
+                setGameStarted(false);
+              }}
+            >
+              exit game
+            </button>
             <GameBoard
               gridSize={gridSize}
               board={board}
               renderCell={renderCell}
             />
+            {/* Add a Quit button to trigger handleCancel */}
+            {/* <button onClick={handleCancel} className="mt-4 px-4 py-2 bg-red-500 text-white rounded">
+            Quit Game
+          </button> */}
           </div>
         )}
       </div>

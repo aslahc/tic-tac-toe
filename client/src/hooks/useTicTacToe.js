@@ -26,12 +26,26 @@ export const useTicTacToe = () => {
     [board, winLine, currentTurn, playerSymbol, passcode, enteredPasscode]
   );
   const handleCancel = useCallback(() => {
-    setGameStarted(false);
-    if (passcode) {
-      setPasscode(null); // Reset passcode locally
-      socket.emit("cancelGame", passcode); // Emit cancel event to server
-    }
-  }, [passcode]);
+    // Reset all necessary states
+    setGameStarted(false); // This should bring back the GameSetup component
+    setBoard([]); // Clear the board
+    setPasscode(""); // Clear the passcode
+    setEnteredPasscode(""); // Clear the entered passcode
+    setPlayerSymbol(null); // Reset player symbol
+    setCurrentTurn("X"); // Reset current turn
+    setGridSize(3); // Optionally reset grid size to default
+    socket.emit("cancelGame", "Game canceled by player"); // Notify the server
+  }, []);
+  useEffect(() => {
+    socket.on("gameCancelled", (message) => {
+      alert(message); // Notify the player
+      handleCancel(); // Reset the game
+    });
+
+    return () => {
+      socket.off("gameCancelled");
+    };
+  }, [handleCancel]);
 
   useEffect(() => {
     const handleGameCreated = ({ passcode }) => {
@@ -101,8 +115,8 @@ export const useTicTacToe = () => {
       setError("Grid size should be between 3 and 10.");
       return;
     }
-    const newPasscode = Math.random().toString(36).substring(7);
-
+    // const newPasscode = Math.random().toString(36).substring(7);
+    const newPasscode = "aaa";
     socket.emit("createGame", { gridSize, passcode: newPasscode });
     setPasscode(newPasscode);
   }, [gridSize]);
