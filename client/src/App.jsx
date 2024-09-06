@@ -5,27 +5,46 @@ const socket = io("http://localhost:4000");
 
 const App = () => {
   const [passcode, setPasscode] = useState("");
+  const [enteredPasscode, setEnteredPasscode] = useState("");
   const [gridSize, setGridSize] = useState(3);
   const [gameStarted, setGameStarted] = useState(false);
   const [board, setBoard] = useState([]);
   const [currentTurn, setCurrentTurn] = useState("X");
+  const [playerSymbol, setPlayerSymbol] = useState(null);
   const [error, setError] = useState("");
   const [scores, setScores] = useState({ X: 0, O: 0 });
   const [winLine, setWinLine] = useState(null);
 
+  const handleMove = (x, y) => {
+    if (board[x][y] || winLine || currentTurn !== playerSymbol) {
+      console.log("Invalid move: Cell filled, game over, or not your turn");
+      return;
+    }
+    console.log(`Move made by ${currentTurn} at position: (${x}, ${y})`);
+    let pass = passcode || enteredPasscode;
+    socket.emit("makeMove", { pass, x, y });
+  };
+
   useEffect(() => {
     socket.on("gameCreated", ({ passcode }) => {
+      console.log("Game Created, passcode:", passcode);
       setPasscode(passcode);
+      setPlayerSymbol("X");
     });
 
     socket.on("gameJoined", ({ gridSize, scores }) => {
+      console.log("Game Joined, gridSize:", gridSize, "scores:", scores);
       setGridSize(gridSize);
       setGameStarted(true);
-      setBoard(Array(gridSize).fill(Array(gridSize).fill(null)));
+      setBoard(
+        Array.from({ length: gridSize }, () => Array(gridSize).fill(null))
+      );
       setScores(scores);
+      setPlayerSymbol("O");
     });
 
     socket.on("startGame", (game) => {
+      console.log("Game started:", game);
       setBoard(game.board);
       setCurrentTurn(game.currentTurn);
       setGameStarted(true);
@@ -34,15 +53,36 @@ const App = () => {
     });
 
     socket.on("updateBoard", (game) => {
+      console.log("Board updated:", game);
       setBoard(game.board);
       setCurrentTurn(game.currentTurn);
     });
+    socket.on("startNextRound", ({ board, currentTurn }) => {
+      console.log("Starting next round.");
+      setBoard(board);
+      setCurrentTurn(currentTurn);
+      setWinLine(null);
+    });
 
     socket.on("gameOver", ({ scores, winLine }) => {
+      console.log("Game over, scores:", scores, "winLine:", winLine);
       setScores(scores);
       setWinLine(winLine);
-      // Remove the alert here
     });
+
+    socket.on("error", (message) => {
+      console.log("Error received:", message);
+      setError(message);
+    });
+
+    return () => {
+      socket.off("gameCreated");
+      socket.off("gameJoined");
+      socket.off("startGame");
+      socket.off("updateBoard");
+      socket.off("gameOver");
+      socket.off("error");
+    };
   }, []);
 
   const createGame = () => {
@@ -50,28 +90,24 @@ const App = () => {
       setError("Grid size should be between 3 and 10.");
       return;
     }
-
-    const passcode = Math.random().toString(36).substring(7);
-    socket.emit("createGame", { gridSize, passcode });
+    const newPasscode = Math.random().toString(36).substring(7);
+    console.log(
+      "Creating game with grid size:",
+      gridSize,
+      "passcode:",
+      newPasscode
+    );
+    socket.emit("createGame", { gridSize, passcode: newPasscode });
+    setPasscode(newPasscode);
   };
 
   const joinGame = () => {
-    if (!passcode) {
+    if (!enteredPasscode) {
       setError("Please enter a valid passcode.");
       return;
     }
-
-    socket.emit("joinGame", passcode);
-
-    socket.on("error", (errorMessage) => {
-      setError(errorMessage);
-    });
-  };
-
-  const handleMove = (x, y) => {
-    if (!board[x][y] && !winLine) {
-      socket.emit("makeMove", { passcode, x, y });
-    }
+    console.log("Joining game with passcode:", enteredPasscode);
+    socket.emit("joinGame", enteredPasscode);
   };
 
   const renderCell = (x, y) => {
@@ -86,6 +122,8 @@ const App = () => {
       fontSize: "2em",
       fontWeight: "bold",
       position: "relative",
+      cursor: currentTurn === playerSymbol ? "pointer" : "not-allowed",
+      backgroundColor: currentTurn === playerSymbol ? "#f0f0f0" : "#e0e0e0",
     };
 
     let crossStyle = {
@@ -130,46 +168,78 @@ const App = () => {
   };
 
   return (
-    <div className="App">
-      {!gameStarted ? (
-        <div>
-          <button onClick={createGame}>Create Game</button>
-          <p>Passcode: {passcode}</p>
-          <div>{error && <p style={{ color: "red" }}>{error}</p>}</div>
-
-          <input
-            type="text"
-            placeholder="Enter passcode"
-            onChange={(e) => setPasscode(e.target.value)}
-          />
-          <button onClick={joinGame}>Join Game</button>
-          <div>
-            <label>Grid Size: </label>
+    <div
+      className="App"
+      style={{ justifyContent: "center", alignItems: "center" }}
+    >
+      <div className="min-h-screen bg-lined-paper font-handwriting">
+        <h1 className="text-4xl mb-6 text-center justify-center">
+          Tic-Tac-Toe
+        </h1>
+        {!gameStarted ? (
+          <div style={{ textAlign: "center", marginBottom: "20px" }}>
+            <button
+              className="px-4 py-2 m-2 bg-gray-900 rounded-full text-yellow-50 font-bold hover:bg-gray-700"
+              onClick={createGame}
+            >
+              Create Game
+            </button>
+            {passcode && <p>Passcode: {passcode}</p>}
+            <br />
+            {error && <p style={{ color: "red" }}>{error}</p>}
             <input
-              type="number"
-              value={gridSize}
-              onChange={(e) => setGridSize(Number(e.target.value))}
+              type="text"
+              className="rounded-full bg-transparent border-2 border-black"
+              placeholder="Enter passcode"
+              style={{ padding: "10px", margin: "10px" }}
+              onChange={(e) => setEnteredPasscode(e.target.value)}
             />
+            <button
+              className="px-4 py-2 m-2 bg-gray-900 rounded-full text-yellow-50 font-bold hover:bg-gray-700"
+              onClick={joinGame}
+            >
+              Join Game
+            </button>
+            <div style={{ marginTop: "20px" }}>
+              <label>Grid Size: </label>
+              <input
+                type="number"
+                className="rounded-full bg-transparent border-2 max-w-12 p-2 border-black"
+                value={gridSize}
+                onChange={(e) => setGridSize(Number(e.target.value))}
+                placeholder="Grid Size"
+              />
+            </div>
           </div>
-        </div>
-      ) : (
-        <div>
-          <h2>Tic Tac Toe - {currentTurn} Turn</h2>
-          <div>
+        ) : (
+          <div style={{ textAlign: "center" }}>
+            <h2>Tic Tac Toe</h2>
             <p>
-              Score - X: {scores.X}, O: {scores.O}
+              {currentTurn === playerSymbol ? (
+                <span>Your Turn: {playerSymbol}</span>
+              ) : (
+                <span>Opponent Turn: {currentTurn}</span>
+              )}
             </p>
+            <p style={{ marginBottom: "20px" }}>
+              <span>Score - X: </span>
+              <span className="text-blue-500">{scores.X}</span>
+              <span>, O: </span>
+              <span className="text-red-600">{scores.O}</span>
+            </p>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: `repeat(${gridSize}, 100px)`,
+                gap: "10px",
+                justifyContent: "center",
+              }}
+            >
+              {board.map((row, x) => row.map((_, y) => renderCell(x, y)))}
+            </div>
           </div>
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: `repeat(${gridSize}, 100px)`,
-            }}
-          >
-            {board.map((row, x) => row.map((_, y) => renderCell(x, y)))}
-          </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };
