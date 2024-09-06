@@ -1,8 +1,8 @@
 import { useTicTacToe } from "./hooks/useTicTacToe";
-import GameSetup from "./components/GameSetup";
-import Cell from "./components/Cell";
-import GameInfo from "./components/GameInfo";
-import GameBoard from "./components/GameBoard";
+import GameSetup from "./components/Tic-tac-toe/GameSetup";
+import Cell from "./components/Tic-tac-toe/Cell";
+import GameInfo from "./components/Tic-tac-toe/GameInfo";
+import GameBoard from "./components/Tic-tac-toe/GameBoard";
 const App = () => {
   const {
     passcode,
