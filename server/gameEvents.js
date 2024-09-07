@@ -60,6 +60,7 @@ const gameEvents = (socket, io) => {
       game.scores[winner]++;
       io.in(pass).emit("gameOver", { scores: game.scores, winLine });
 
+      // Reset the board and start the next round after a short delay
       setTimeout(() => {
         game.board = Array(game.gridSize)
           .fill()
@@ -77,11 +78,31 @@ const gameEvents = (socket, io) => {
       return;
     }
 
-    if (game.board.every((row) => row.every((cell) => cell !== null))) {
+    // Handle draw case: no winner and board is full
+    const isDraw = game.board.every((row) =>
+      row.every((cell) => cell !== null)
+    );
+
+    if (isDraw) {
       io.in(pass).emit("gameOver", { scores: game.scores, winLine: null });
+
+      // Reset the board and start next round immediately (no score update)
+      game.board = Array(game.gridSize)
+        .fill()
+        .map(() => Array(game.gridSize).fill(null));
+      game.currentTurn = "X";
+
+      io.in(pass).emit("startNextRound", {
+        board: game.board,
+        currentTurn: game.currentTurn,
+      });
+
+      console.log("Starting next round immediately after draw.");
+
       return;
     }
 
+    // Continue the game if no draw or winner
     game.currentTurn = game.currentTurn === "X" ? "O" : "X";
 
     io.in(pass).emit("updateBoard", {
@@ -89,7 +110,6 @@ const gameEvents = (socket, io) => {
       currentTurn: game.currentTurn,
     });
   });
-
   socket.on("cancelGame", (passcode) => {
     console.log("eter");
     console.log("Handling cancellation...");

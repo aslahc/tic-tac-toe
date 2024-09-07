@@ -2,11 +2,9 @@
 
 const GameBoard = ({ gridSize, board, renderCell }) => (
   <div
+    className="game-board"
     style={{
-      display: "grid",
       gridTemplateColumns: `repeat(${gridSize}, 100px)`,
-      gap: "10px",
-      justifyContent: "center",
     }}
   >
     {board.map((row, x) => row.map((_, y) => renderCell(x, y)))}

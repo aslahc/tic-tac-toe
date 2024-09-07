@@ -17,6 +17,7 @@ export const useTicTacToe = () => {
 
   const handleMove = useCallback(
     (x, y) => {
+      console.log("handleeeeeyyyy moveeeey worrking ");
       if (board[x][y] || winLine || currentTurn !== playerSymbol) {
         return;
       }
@@ -115,8 +116,7 @@ export const useTicTacToe = () => {
       setError("Grid size should be between 3 and 10.");
       return;
     }
-    // const newPasscode = Math.random().toString(36).substring(7);
-    const newPasscode = "aaa";
+    const newPasscode = Math.random().toString(36).substring(7);
     socket.emit("createGame", { gridSize, passcode: newPasscode });
     setPasscode(newPasscode);
   }, [gridSize]);

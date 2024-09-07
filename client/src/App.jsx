@@ -27,50 +27,41 @@ const App = () => {
 
   const renderCell = (x, y) => {
     const cellContent = board[x][y];
-    let cellStyle = {
-      width: "100px",
-      height: "100px",
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      border: "1px solid black",
-      fontSize: "2em",
-      fontWeight: "bold",
-      position: "relative",
-      cursor: currentTurn === playerSymbol ? "pointer" : "not-allowed",
-      backgroundColor: currentTurn === playerSymbol ? "#f0f0f0" : "#e0e0e0",
-    };
-
-    let crossStyle = {
-      position: "absolute",
-      width: "100%",
-      height: "100%",
-      display: "none",
-    };
+    // const cellStyle = {
+    //   width: "100px",
+    //   height: "100px",
+    //   display: "flex",
+    //   justifyContent: "center",
+    //   alignItems: "center",
+    //   border: "1px solid black",
+    //   fontSize: "2em",
+    //   fontWeight: "bold",
+    //   position: "relative",
+    //   cursor: currentTurn === playerSymbol ? "pointer" : "not-allowed",
+    //   backgroundColor: currentTurn === playerSymbol ? "#f0f0f0" : "#e0e0e0",
+    //   "@media (max-width: 768px)": {
+    //     width: "80px",
+    //     height: "80px",
+    //     fontSize: "1.5em",
+    //   },
+    //   "@media (max-width: 480px)": {
+    //     width: "60px",
+    //     height: "60px",
+    //     fontSize: "1em",
+    //   },
+    // };
 
     if (winLine) {
-      if (
+      const isWinningCell =
         (winLine.type === "row" && winLine.index === x) ||
         (winLine.type === "column" && winLine.index === y) ||
         (winLine.type === "diagonal" && winLine.index === 0 && x === y) ||
         (winLine.type === "diagonal" &&
           winLine.index === 1 &&
-          x + y === gridSize - 1)
-      ) {
-        crossStyle.display = "block";
-        if (winLine.type === "row") {
-          crossStyle.borderBottom = "5px solid red";
-        } else if (winLine.type === "column") {
-          crossStyle.borderRight = "5px solid red";
-        } else if (winLine.type === "diagonal") {
-          if (winLine.index === 0) {
-            crossStyle.transform = "rotate(45deg)";
-            crossStyle.borderBottom = "5px solid red";
-          } else {
-            crossStyle.transform = "rotate(-45deg)";
-            crossStyle.borderBottom = "5px solid red";
-          }
-        }
+          x + y === gridSize - 1);
+
+      if (isWinningCell) {
+        // cellStyle.backgroundColor = "#90EE90";
       }
     }
 
@@ -79,20 +70,16 @@ const App = () => {
         x={x}
         y={y}
         cellContent={cellContent}
-        cellStyle={cellStyle}
-        crossStyle={crossStyle}
+        // cellStyle={cellStyle}
         onClick={() => handleMove(x, y)}
       />
     );
   };
-  console.log(gameStarted, "-------------------------");
+
   return (
-    <div
-      className="App"
-      style={{ justifyContent: "center", alignItems: "center" }}
-    >
-      <div className="min-h-screen bg-lined-paper font-handwriting">
-        <h1 className="text-4xl mb-6 text-center justify-center">
+    <div className="App flex flex-col items-center justify-center min-h-screen">
+      <div className="min-h-screen w-full px-4 sm:px-8 bg-lined-paper font-handwriting">
+        <h1 className="text-2xl sm:text-4xl lg:text-5xl mb-6 text-center">
           Tic-Tac-Toe
         </h1>
 
@@ -109,28 +96,25 @@ const App = () => {
             joinGame={joinGame}
           />
         ) : (
-          <div style={{ textAlign: "center" }}>
+          <div className="text-center">
             <GameInfo
               currentTurn={currentTurn}
               playerSymbol={playerSymbol}
               scores={scores}
             />
             <button
+              className="mt-4 px-6 py-2 text-red-600 transition-all duration-200"
               onClick={() => {
                 setGameStarted(false);
               }}
             >
-              exit game
+              Exit Game
             </button>
             <GameBoard
               gridSize={gridSize}
               board={board}
               renderCell={renderCell}
             />
-            {/* Add a Quit button to trigger handleCancel */}
-            {/* <button onClick={handleCancel} className="mt-4 px-4 py-2 bg-red-500 text-white rounded">
-            Quit Game
-          </button> */}
           </div>
         )}
       </div>

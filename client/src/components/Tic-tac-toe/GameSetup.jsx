@@ -2,6 +2,7 @@
 import { useState } from "react";
 import Btn from "../Buttons/Btn";
 import { useTicTacToe } from "../../hooks/useTicTacToe";
+import OpponentWaiting from "../popupModal/OpponentWaiting";
 const GameSetup = ({
   passcode,
   error,
@@ -61,33 +62,12 @@ const GameSetup = ({
       </div>
 
       {isWaiting && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-lg shadow-lg">
-            <h2 className="text-xl font-bold mb-4">Waiting for Opponent</h2>
-            <div className="flex flex-col items-center space-y-4">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-              <p>Waiting for an opponent to join...</p>
-              <div className="flex items-center space-x-2">
-                <p>Passcode: {passcode}</p>
-                <button
-                  onClick={handleCopy}
-                  className="text-blue-500 hover:text-blue-700 focus:outline-none"
-                >
-                  Copy
-                </button>
-                {copySuccess && (
-                  <span className="text-green-500">{copySuccess}</span>
-                )}
-              </div>
-            </div>
-            <button
-              onClick={makecancel}
-              className="mt-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
+        <OpponentWaiting
+          passcode={passcode}
+          copySuccess={copySuccess}
+          handleCopy={handleCopy}
+          makecancel={makecancel}
+        />
       )}
     </div>
   );
