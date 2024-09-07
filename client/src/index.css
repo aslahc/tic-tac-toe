@@ -40,6 +40,7 @@ html, body {
   display: grid;
   gap: 10px;
   justify-content: center;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
 }
 
 @media (max-width: 640px) {
@@ -51,46 +52,5 @@ html, body {
 @media (max-width: 768px) {
   .game-board {
     grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
-  }
-}
-/* styles.css */
-
-.cell {
-  width: 100px;
-  height: 100px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border: 1px solid black;
-  font-size: 2em;
-  font-weight: bold;
-  position: relative;
-  cursor: pointer;
-  background-color: #f0f0f0;
-}
-
-.cell.inactive {
-  cursor: not-allowed;
-  background-color: #e0e0e0;
-}
-
-.cell.winning {
-  background-color: #90EE90;
-}
-
-/* Responsive Styles */
-@media (max-width: 768px) {
-  .cell {
-    width: 80px;
-    height: 80px;
-    font-size: 1.5em;
-  }
-}
-
-@media (max-width: 480px) {
-  .cell {
-    width: 60px;
-    height: 60px;
-    font-size: 1em;
   }
 }

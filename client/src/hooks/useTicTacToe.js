@@ -14,10 +14,13 @@ export const useTicTacToe = () => {
   const [error, setError] = useState("");
   const [scores, setScores] = useState({ X: 0, O: 0 });
   const [winLine, setWinLine] = useState(null);
+  const [history, setHistory] = useState([]);
 
+  console.log("set current turn ", currentTurn);
+  console.log(" this is ", board);
   const handleMove = useCallback(
     (x, y) => {
-      console.log("handleeeeeyyyy moveeeey worrking ");
+      console.log("handleeeeeyyyy moveeeey worrking ", x, y);
       if (board[x][y] || winLine || currentTurn !== playerSymbol) {
         return;
       }
@@ -34,8 +37,10 @@ export const useTicTacToe = () => {
     setEnteredPasscode(""); // Clear the entered passcode
     setPlayerSymbol(null); // Reset player symbol
     setCurrentTurn("X"); // Reset current turn
-    setGridSize(3); // Optionally reset grid size to default
-    socket.emit("cancelGame", "Game canceled by player"); // Notify the server
+    setGridSize(3);
+    const storedPasscode = localStorage.getItem("gamePasscode");
+    // Optionally reset grid size to default
+    socket.emit("cancelGame", storedPasscode); // Notify the server
   }, []);
   useEffect(() => {
     socket.on("gameCancelled", (message) => {
@@ -75,6 +80,7 @@ export const useTicTacToe = () => {
     const handleUpdateBoard = (game) => {
       setBoard(game.board);
       setCurrentTurn(game.currentTurn);
+      setHistory(game.history);
     };
 
     const handleStartNextRound = ({ board, currentTurn }) => {
@@ -148,5 +154,6 @@ export const useTicTacToe = () => {
     joinGame,
     handleCancel,
     setGameStarted,
+    history,
   };
 };
