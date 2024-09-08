@@ -21,10 +21,15 @@ const App = () => {
     joinGame,
     setGameStarted,
     history,
+    handleCancel,
   } = useTicTacToe();
 
   const [isWaiting, setIsWaiting] = useState(false);
-
+  const handleExitgame = () => {
+    console.log("enter to handle exit game ");
+    handleCancel();
+    setGameStarted(false);
+  };
   return (
     <div className="App flex flex-col items-center justify-center min-h-screen">
       <div className="min-h-screen w-full px-4 sm:px-8 bg-lined-paper font-handwriting">
@@ -55,7 +60,7 @@ const App = () => {
               <button
                 className="mt-4 px-6 py-2 text-red-600 transition-all duration-200"
                 onClick={() => {
-                  setGameStarted(false);
+                  handleExitgame();
                 }}
               >
                 Exit Game

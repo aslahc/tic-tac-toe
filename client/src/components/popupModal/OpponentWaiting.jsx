@@ -8,14 +8,12 @@ const OpponentWaiting = ({ passcode, copySuccess, handleCopy, makecancel }) => {
           <h2 className="text-xl font-bold font-handwriting">
             Waiting for Opponent
           </h2>
-          <button className="text-gray-600 hover:text-gray-800 focus:outline-none">
-            ✖
-          </button>
         </div>
         <div className="flex flex-col items-center space-y-4">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-600"></div>
           <p className="font-handwriting text-lg">
-            Waiting for an opponent to join...
+            Waiting for an opponent to join... Use this passcode to start a
+            multiplayer game. You can join using a different browser or device.
           </p>
           <div className="flex items-center space-x-2">
             <p className="font-handwriting text-lg">Passcode: {passcode}</p>

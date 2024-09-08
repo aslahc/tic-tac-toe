@@ -1,8 +1,8 @@
 /* eslint-disable react/prop-types */
-import { useState } from "react";
 import Btn from "../Buttons/Btn";
 import { useTicTacToe } from "../../hooks/useTicTacToe";
 import OpponentWaiting from "../popupModal/OpponentWaiting";
+import { useClipboard } from "../../hooks/handlecopy";
 const GameSetup = ({
   passcode,
   error,
@@ -16,16 +16,9 @@ const GameSetup = ({
 
   // New prop for invalidating the passcode
 }) => {
-  const [copySuccess, setCopySuccess] = useState("");
   const { handleCancel } = useTicTacToe();
   // Function to copy passcode to clipboard
-  const handleCopy = () => {
-    if (passcode) {
-      navigator.clipboard.writeText(passcode);
-      setCopySuccess("Copied!");
-      setTimeout(() => setCopySuccess(""), 2000); // Reset message after 2 seconds
-    }
-  };
+  const { handleCopy, copySuccess } = useClipboard();
 
   const handleCreateGame = () => {
     createGame();

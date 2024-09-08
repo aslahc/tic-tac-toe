@@ -56,7 +56,13 @@ const gameEvents = (socket, io) => {
     game.board[x][y] = game.currentTurn;
 
     const { winner, winLine } = checkWinner(game.board, game.gridSize);
+    game.currentTurn = game.currentTurn === "X" ? "O" : "X";
 
+    io.in(pass).emit("updateBoard", {
+      board: game.board,
+      currentTurn: game.currentTurn,
+      history: game.history, // Send updated history
+    });
     if (winner) {
       game.scores[winner]++;
       io.in(pass).emit("gameOver", { scores: game.scores, winLine });
@@ -97,14 +103,6 @@ const gameEvents = (socket, io) => {
 
       return;
     }
-
-    game.currentTurn = game.currentTurn === "X" ? "O" : "X";
-
-    io.in(pass).emit("updateBoard", {
-      board: game.board,
-      currentTurn: game.currentTurn,
-      history: game.history, // Send updated history
-    });
   });
 
   socket.on("cancelGame", (passcode) => {

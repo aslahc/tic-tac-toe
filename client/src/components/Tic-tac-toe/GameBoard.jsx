@@ -22,7 +22,10 @@ const GameBoard = ({
       fontWeight: "bold",
       position: "relative",
       cursor: currentTurn === playerSymbol ? "pointer" : "not-allowed",
-      backgroundColor: currentTurn === playerSymbol ? "#f0f0f0" : "#e0e0e0",
+      backgroundColor:
+        currentTurn === playerSymbol
+          ? "rgba(0, 0, 0, 0)"
+          : "rgba(5, 5, 5, 0.05)",
     };
 
     if (winLine) {

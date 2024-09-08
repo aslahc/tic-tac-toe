@@ -1,7 +1,11 @@
 import { useState, useEffect, useCallback } from "react";
-import io from "socket.io-client";
-
-const socket = io("http://localhost:4000");
+import {
+  initializeSocket,
+  createGame as createGameSocket,
+  joinGame as joinGameSocket,
+  makeMove as makeMoveSocket,
+  cancelGame as cancelGameSocket,
+} from "../utils/socket.js";
 
 export const useTicTacToe = () => {
   const [passcode, setPasscode] = useState("");
@@ -16,106 +20,77 @@ export const useTicTacToe = () => {
   const [winLine, setWinLine] = useState(null);
   const [history, setHistory] = useState([]);
 
-  console.log("set current turn ", currentTurn);
-  console.log(" this is ", board);
   const handleMove = useCallback(
     (x, y) => {
-      console.log("handleeeeeyyyy moveeeey worrking ", x, y);
       if (board[x][y] || winLine || currentTurn !== playerSymbol) {
         return;
       }
       let pass = passcode || enteredPasscode;
-      socket.emit("makeMove", { pass, x, y });
+      makeMoveSocket(pass, x, y);
     },
     [board, winLine, currentTurn, playerSymbol, passcode, enteredPasscode]
   );
+
   const handleCancel = useCallback(() => {
-    // Reset all necessary states
-    setGameStarted(false); // This should bring back the GameSetup component
-    setBoard([]); // Clear the board
-    setPasscode(""); // Clear the passcode
-    setEnteredPasscode(""); // Clear the entered passcode
-    setPlayerSymbol(null); // Reset player symbol
-    setCurrentTurn("X"); // Reset current turn
+    console.log("entering to handle cancel ");
+    setGameStarted(false);
+    setBoard([]);
+    setPasscode("");
+    setEnteredPasscode("");
+    setPlayerSymbol(null);
+    setCurrentTurn("X");
     setGridSize(3);
     const storedPasscode = localStorage.getItem("gamePasscode");
-    // Optionally reset grid size to default
-    socket.emit("cancelGame", storedPasscode); // Notify the server
+    console.log("stored passcode ", storedPasscode);
+    cancelGameSocket(storedPasscode);
   }, []);
+
   useEffect(() => {
-    socket.on("gameCancelled", (message) => {
-      alert(message); // Notify the player
-      handleCancel(); // Reset the game
+    const cleanup = initializeSocket({
+      onGameCreated: ({ passcode }) => {
+        setPasscode(passcode);
+        setPlayerSymbol("X");
+      },
+      onGameJoined: ({ gridSize, scores }) => {
+        setGridSize(gridSize);
+        setGameStarted(true);
+        setBoard(
+          Array.from({ length: gridSize }, () => Array(gridSize).fill(null))
+        );
+        setScores(scores);
+        setPlayerSymbol("O");
+      },
+      onStartGame: (game) => {
+        setBoard(game.board);
+        setCurrentTurn(game.currentTurn);
+        setGameStarted(true);
+        setScores(game.scores);
+        setWinLine(null);
+      },
+      onUpdateBoard: (game) => {
+        setBoard(game.board);
+        setCurrentTurn(game.currentTurn);
+        setHistory(game.history);
+      },
+      onStartNextRound: ({ board, currentTurn }) => {
+        setBoard(board);
+        setCurrentTurn(currentTurn);
+        setWinLine(null);
+      },
+      onGameOver: ({ scores, winLine }) => {
+        setScores(scores);
+        setWinLine(winLine);
+      },
+      onError: (message) => {
+        setError(message);
+      },
+      onGameCancelled: () => {
+        handleCancel();
+      },
     });
 
-    return () => {
-      socket.off("gameCancelled");
-    };
+    return cleanup;
   }, [handleCancel]);
-
-  useEffect(() => {
-    const handleGameCreated = ({ passcode }) => {
-      setPasscode(passcode);
-      setPlayerSymbol("X");
-    };
-
-    const handleGameJoined = ({ gridSize, scores }) => {
-      setGridSize(gridSize);
-      setGameStarted(true);
-      setBoard(
-        Array.from({ length: gridSize }, () => Array(gridSize).fill(null))
-      );
-      setScores(scores);
-      setPlayerSymbol("O");
-    };
-
-    const handleStartGame = (game) => {
-      setBoard(game.board);
-      setCurrentTurn(game.currentTurn);
-      setGameStarted(true);
-      setScores(game.scores);
-      setWinLine(null);
-    };
-
-    const handleUpdateBoard = (game) => {
-      setBoard(game.board);
-      setCurrentTurn(game.currentTurn);
-      setHistory(game.history);
-    };
-
-    const handleStartNextRound = ({ board, currentTurn }) => {
-      setBoard(board);
-      setCurrentTurn(currentTurn);
-      setWinLine(null);
-    };
-
-    const handleGameOver = ({ scores, winLine }) => {
-      setScores(scores);
-      setWinLine(winLine);
-    };
-
-    const handleError = (message) => {
-      setError(message);
-    };
-
-    socket.on("gameCreated", handleGameCreated);
-    socket.on("gameJoined", handleGameJoined);
-    socket.on("startGame", handleStartGame);
-    socket.on("updateBoard", handleUpdateBoard);
-    socket.on("startNextRound", handleStartNextRound);
-    socket.on("gameOver", handleGameOver);
-    socket.on("error", handleError);
-
-    return () => {
-      socket.off("gameCreated", handleGameCreated);
-      socket.off("gameJoined", handleGameJoined);
-      socket.off("startGame", handleStartGame);
-      socket.off("updateBoard", handleUpdateBoard);
-      socket.off("startNextRound", handleStartNextRound);
-      socket.off("gameOver", handleGameOver);
-      socket.off("error", handleError);
-    };
-  }, []);
 
   const createGame = useCallback(() => {
     if (gridSize < 3 || gridSize > 10) {
@@ -123,7 +98,9 @@ export const useTicTacToe = () => {
       return;
     }
     const newPasscode = Math.random().toString(36).substring(7);
-    socket.emit("createGame", { gridSize, passcode: newPasscode });
+    localStorage.setItem("gamePasscode", newPasscode);
+
+    createGameSocket(gridSize, newPasscode);
     setPasscode(newPasscode);
   }, [gridSize]);
 
@@ -132,7 +109,7 @@ export const useTicTacToe = () => {
       setError("Please enter a valid passcode.");
       return;
     }
-    socket.emit("joinGame", enteredPasscode);
+    joinGameSocket(enteredPasscode);
   }, [enteredPasscode]);
 
   return {
