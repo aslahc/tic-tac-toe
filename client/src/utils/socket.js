@@ -1,6 +1,6 @@
 import io from "socket.io-client";
 
-const BACKEND_URL = "https://tic-tac-toe-backend-fawn.vercel.app";
+const BACKEND_URL = "https://tic-tac-toe-backend-fawn.vercel.app/game";
 
 const socket = io(BACKEND_URL);
 
@@ -49,7 +49,6 @@ export const initializeSocket = (callbacks) => {
   };
 };
 
-// Rest of your code remains the same
 export const createGame = (gridSize, passcode) => {
   socket.emit("createGame", { gridSize, passcode });
 };

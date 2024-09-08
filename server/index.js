@@ -15,7 +15,10 @@ const io = new Server(server, {
   },
 });
 
-io.on("connection", (socket) => {
+// Define a custom namespace
+const gameNamespace = io.of("/game");
+
+gameNamespace.on("connection", (socket) => {
   console.log("A player connected:", socket.id);
 
   // Handle game-related events
