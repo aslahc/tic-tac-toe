@@ -2,12 +2,7 @@ import io from "socket.io-client";
 
 const BACKEND_URL = "https://tic-tac-toe-backend-fawn.vercel.app";
 
-const socket = io(`${BACKEND_URL}/socket.io`, {
-  transports: ["websocket", "polling"], // Use both transports
-  forceNew: true,
-  reconnectionAttempts: 5,
-  timeout: 10000,
-});
+const socket = io(BACKEND_URL);
 
 export const initializeSocket = (callbacks) => {
   const {
