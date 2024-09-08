@@ -1,7 +1,8 @@
 import io from "socket.io-client";
 
+// Initialize the socket connection to the provided server URL
 const socket = io("https://tic-tac-toe-fpvz.onrender.com/");
-
+// Function to initialize socket event listeners and their corresponding callback functions
 export const initializeSocket = (callbacks) => {
   const {
     onGameCreated,
@@ -13,7 +14,7 @@ export const initializeSocket = (callbacks) => {
     onError,
     onGameCancelled,
   } = callbacks;
-
+  // Set up event listeners for each event emitted from the server
   socket.on("gameCreated", onGameCreated);
   socket.on("gameJoined", onGameJoined);
   socket.on("startGame", onStartGame);
@@ -22,7 +23,7 @@ export const initializeSocket = (callbacks) => {
   socket.on("gameOver", onGameOver);
   socket.on("error", onError);
   socket.on("gameCancelled", onGameCancelled);
-
+  // Return a function to clean up the event listeners when no longer needed
   return () => {
     socket.off("gameCreated", onGameCreated);
     socket.off("gameJoined", onGameJoined);
@@ -39,14 +40,15 @@ export const createGame = (gridSize, passcode) => {
   socket.emit("createGame", { gridSize, passcode });
 };
 
+// Function to emit the 'makeMove' event to the server, passing the game passcode and coordinates (x, y) of the mov
 export const joinGame = (passcode) => {
   socket.emit("joinGame", passcode);
 };
-
+// Function to emit the 'makeMove' event to the server, passing the game passcode and coordinates (x, y)
 export const makeMove = (pass, x, y) => {
   socket.emit("makeMove", { pass, x, y });
 };
-
+// Function to emit the 'cancelGame' event to the server, passing the game's passcode to cancel the game
 export const cancelGame = (passcode) => {
   socket.emit("cancelGame", passcode);
 };

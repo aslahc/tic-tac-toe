@@ -8,6 +8,7 @@ import {
 } from "../utils/socket.js";
 
 export const useTicTacToe = () => {
+  // State variables to manage game status, board, and player info
   const [passcode, setPasscode] = useState("");
   const [enteredPasscode, setEnteredPasscode] = useState("");
   const [gridSize, setGridSize] = useState(3);
@@ -19,7 +20,7 @@ export const useTicTacToe = () => {
   const [scores, setScores] = useState({ X: 0, O: 0 });
   const [winLine, setWinLine] = useState(null);
   const [history, setHistory] = useState([]);
-
+  // Function to handle making a move on the board
   const handleMove = useCallback(
     (x, y) => {
       if (board[x][y] || winLine || currentTurn !== playerSymbol) {
@@ -30,7 +31,7 @@ export const useTicTacToe = () => {
     },
     [board, winLine, currentTurn, playerSymbol, passcode, enteredPasscode]
   );
-
+  // Function to handle game cancellation
   const handleCancel = useCallback(() => {
     console.log("entering to handle cancel ");
     setGameStarted(false);
@@ -44,7 +45,7 @@ export const useTicTacToe = () => {
     console.log("stored passcode ", storedPasscode);
     cancelGameSocket(storedPasscode);
   }, []);
-
+  // Setup socket event listeners and cleanup when the component is unmounted
   useEffect(() => {
     const cleanup = initializeSocket({
       onGameCreated: ({ passcode }) => {
@@ -93,7 +94,7 @@ export const useTicTacToe = () => {
 
     return cleanup;
   }, [handleCancel]);
-
+  // Function to create a new game
   const createGame = useCallback(() => {
     if (gridSize < 3 || gridSize > 10) {
       setError("Grid size should be between 3 and 10.");
@@ -105,7 +106,7 @@ export const useTicTacToe = () => {
     createGameSocket(gridSize, newPasscode);
     setPasscode(newPasscode);
   }, [gridSize]);
-
+  // Function to join an existing game
   const joinGame = useCallback(() => {
     if (!enteredPasscode) {
       setError("Please enter a valid passcode.");

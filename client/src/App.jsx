@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { useTicTacToe } from "./hooks/useTicTacToe";
-import GameSetup from "./components/Tic-tac-toe/GameSetup";
-import GameInfo from "./components/Tic-tac-toe/GameInfo";
-import GameBoard from "./components/Tic-tac-toe/GameBoard";
+import { useTicTacToe } from "./hooks/useTicTacToe"; // Custom hook for Tic Tac Toe logic
+import GameSetup from "./components/Tic-tac-toe/GameSetup"; // Component for game setup
+import GameInfo from "./components/Tic-tac-toe/GameInfo"; // Component to display game information (current turn, scores, etc.)
+import GameBoard from "./components/Tic-tac-toe/GameBoard"; // Component for the game board
 const App = () => {
+  // Destructure values from the custom useTicTacToe hook
   const {
     passcode,
     setEnteredPasscode,
@@ -25,6 +26,7 @@ const App = () => {
   } = useTicTacToe();
 
   const [isWaiting, setIsWaiting] = useState(false);
+  // Function to handle exiting the game
   const handleExitgame = () => {
     console.log("enter to handle exit game ");
     handleCancel();
@@ -36,7 +38,7 @@ const App = () => {
         <h1 className="text-2xl sm:text-4xl lg:text-5xl mb-6 text-center">
           Tic-Tac-Toe
         </h1>
-
+        {/* Render game setup if the game hasn't started */}
         {!gameStarted ? (
           <GameSetup
             isWaiting={isWaiting}
@@ -52,11 +54,13 @@ const App = () => {
         ) : (
           <>
             <div className="text-center">
+              {/* If the game has started, show game information and board */}
               <GameInfo
                 currentTurn={currentTurn}
                 playerSymbol={playerSymbol}
                 scores={scores}
               />
+              {/* Button to exit the game */}
               <button
                 className="mt-4 px-6 py-2 text-red-600 transition-all duration-200"
                 onClick={() => {
@@ -65,6 +69,7 @@ const App = () => {
               >
                 Exit Game
               </button>
+              {/* Render the game board */}
               <GameBoard
                 gridSize={gridSize}
                 board={board}
@@ -77,6 +82,7 @@ const App = () => {
             <div className="mt-4">
               <h2 className="text-lg font-bold">Move History:</h2>
               <ul>
+                {/* Display the move history */}
                 {history.map((move, index) => (
                   <li key={index}>
                     Player {move.player} moved to ({move.x}, {move.y})
