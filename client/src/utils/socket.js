@@ -1,6 +1,6 @@
 import io from "socket.io-client";
 
-const BACKEND_URL = "https://tic-tac-toe-backend-fawn.vercel.app/game";
+const BACKEND_URL = "https://tic-tac-toe-fpvz.onrender.com/game";
 
 const socket = io(BACKEND_URL);
 
