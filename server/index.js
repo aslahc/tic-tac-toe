@@ -10,15 +10,11 @@ app.use(cors());
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "*", // Frontend URL
-    credentials: true,
+    origin: "*",
   },
 });
 
-// Define a custom namespace
-const gameNamespace = io.of("/game");
-
-gameNamespace.on("connection", (socket) => {
+io.on("connection", (socket) => {
   console.log("A player connected:", socket.id);
 
   // Handle game-related events

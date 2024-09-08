@@ -1,8 +1,6 @@
 import io from "socket.io-client";
 
-const BACKEND_URL = "https://tic-tac-toe-fpvz.onrender.com/game";
-
-const socket = io(BACKEND_URL);
+const socket = io("https://tic-tac-toe-fpvz.onrender.com/");
 
 export const initializeSocket = (callbacks) => {
   const {
@@ -15,18 +13,6 @@ export const initializeSocket = (callbacks) => {
     onError,
     onGameCancelled,
   } = callbacks;
-
-  socket.on("connect", () => {
-    console.log("Connected to server");
-  });
-
-  socket.on("connect_error", (error) => {
-    console.log("Connection error:", error);
-  });
-
-  socket.on("disconnect", () => {
-    console.log("Disconnected from server");
-  });
 
   socket.on("gameCreated", onGameCreated);
   socket.on("gameJoined", onGameJoined);

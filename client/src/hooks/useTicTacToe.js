@@ -61,6 +61,7 @@ export const useTicTacToe = () => {
         setPlayerSymbol("O");
       },
       onStartGame: (game) => {
+        console.log("game", game);
         setBoard(game.board);
         setCurrentTurn(game.currentTurn);
         setGameStarted(true);
@@ -68,6 +69,7 @@ export const useTicTacToe = () => {
         setWinLine(null);
       },
       onUpdateBoard: (game) => {
+        console.log("update fff", game);
         setBoard(game.board);
         setCurrentTurn(game.currentTurn);
         setHistory(game.history);
