@@ -15,7 +15,6 @@ const gameEvents = (socket, io) => {
       currentTurn: "X",
       scores: { X: 0, O: 0 },
       history: [], // Initialize history array
-      creator: socket.id, // Store creator's socket ID
     };
 
     socket.join(passcode);
@@ -35,20 +34,14 @@ const gameEvents = (socket, io) => {
       };
       game.playerSymbols = playerSymbols;
 
-      // Notify both players to start the game
-      io.in(passcode).emit("gameJoined", {
+      socket.emit("gameJoined", {
         gridSize: game.gridSize,
         scores: game.scores,
       });
-      io.in(passcode).emit("startGame", game);
 
-      // Automatically join the creator of the game as well
-      const creatorSocket = io.sockets.sockets.get(game.creator);
-      if (creatorSocket) {
-        creatorSocket.join(passcode);
-      }
+      io.in(passcode).emit("startGame", game);
     } else {
-      socket.emit("error", "Game not available or already full");
+      socket.emit("error", "Game not available");
     }
   });
 
